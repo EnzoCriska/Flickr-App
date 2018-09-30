@@ -11,13 +11,14 @@ import android.widget.Toast;
 import com.dts.flickrclient.Model.Constant;
 import com.dts.flickrclient.Model.JsonPares;
 import com.dts.flickrclient.Model.Photo;
+import com.dts.flickrclient.Presenter.Notic;
 import com.dts.flickrclient.Presenter.PhotoGallery;
 
 import java.util.ArrayList;
 
 public class ServiceGetdata extends IntentService  implements CallbackIf, Constant{
     private String TAG = "Service Getdata";
-    private ArrayList oldList = new ArrayList();
+    private ArrayList oldList;
     private ArrayList<Bitmap> bitmapList  = new ArrayList<>();
     private ArrayList<Photo> dataList  = new ArrayList<>();
     public ServiceGetdata() {
@@ -27,11 +28,12 @@ public class ServiceGetdata extends IntentService  implements CallbackIf, Consta
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         Log.i(TAG,"On handele Intent" );
-        String str = intent.getStringExtra("Hello");
-        Log.i(TAG, "String test "+ str);
+        oldList = new ArrayList();
+
+
         Bundle bundle = intent.getExtras();
         oldList = bundle.getParcelableArrayList("oldList");
-        new LoadDataAsynTask(this).execute(PhotoGallery.buildUrl(METHOD,null));
+        new LoadDataAsynTask(this).execute(PhotoGallery.buildUrl(METHOD,null, null, null));
     }
 
     @Override
@@ -48,6 +50,7 @@ public class ServiceGetdata extends IntentService  implements CallbackIf, Consta
             Toast.makeText(this, "DOWNLOADING SUCESSFULY! "+ bitmapList.size(), Toast.LENGTH_SHORT).show();
         }else {
             Toast.makeText(this, "LOADING SUCESSFULY!", Toast.LENGTH_SHORT).show();
+            Log.i(TAG, "Start parse Json");
             dataList = JsonPares.parseJson(s);
             equalsData(oldList, dataList);
         }
@@ -62,23 +65,22 @@ public class ServiceGetdata extends IntentService  implements CallbackIf, Consta
         }else{
             //Gửi ảnh đến activity
             Log.i(TAG, "On Complite Dowload Bitmap, send to Acitvity...");
-            Intent intent = new Intent(this, PhotoGallery.class);
-            intent.setAction("GET_NEW_BITMAP_IMAGE");
-            Bundle bundle = new Bundle();
-            bundle.putParcelableArrayList("ListBitmap", bitmapList);
-            intent.putExtras(bundle);
-            sendBroadcast(intent);
+
+            Notic notic = new Notic(this, arrayList);
+            notic.showNotic("Flickr Client", "new Image");
+
         }
     }
 
     private void equalsData(ArrayList oldList, ArrayList<Photo> dataList) {
         for (int i = 0; i < oldList.size(); i++) {
             int j = 0;
-            while (dataList.size() > 0 || j < dataList.size()) {
+            while (dataList.size() > 0 && j < dataList.size()) {
                 if (oldList.get(i).equals(dataList.get(j))) {
                     Log.i(TAG, "Data " + j + "list data is aready and remove it.");
                     dataList.remove(j);
                 }
+                j++;
             }
         }
     }

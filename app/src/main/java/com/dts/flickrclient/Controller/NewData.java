@@ -4,4 +4,5 @@ import java.util.ArrayList;
 
 public interface NewData {
     public void update(ArrayList list);
+    public void startServiceWithSys();
 }

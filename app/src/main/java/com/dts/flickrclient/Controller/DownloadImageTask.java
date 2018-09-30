@@ -5,16 +5,18 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.dts.flickrclient.Model.BitmapCache;
 import com.dts.flickrclient.Model.Photo;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 
 public class DownloadImageTask extends AsyncTask<ArrayList<Photo>, Bitmap, ArrayList<Bitmap>> {
-    Photo photoChange;
+    private Photo photoChange;
     private String TAG = "DownLoadImageTask";
-    ArrayList<Bitmap> listBitmap;
+    private ArrayList<Bitmap> listBitmap;
     private CallbackIf callbackIf;
+    private BitmapCache cache;
 
     public DownloadImageTask(CallbackIf callbackIf) {
         this.callbackIf = callbackIf;
@@ -24,6 +26,7 @@ public class DownloadImageTask extends AsyncTask<ArrayList<Photo>, Bitmap, Array
     protected void onPreExecute() {
         super.onPreExecute();
         listBitmap = new ArrayList<>();
+        cache = new BitmapCache(100);
         callbackIf.onStartLoading();
     }
 
@@ -31,20 +34,26 @@ public class DownloadImageTask extends AsyncTask<ArrayList<Photo>, Bitmap, Array
         ArrayList<Photo> list = photos[0];
 
         for (int i = 0; i < list.size(); i++) {
+            Bitmap mIcon11 = null;
             photoChange = list.get(i);
             String urldisplay = photoChange.getUrlS();
-            Bitmap mIcon11 = null;
-            try {
-                InputStream in = new java.net.URL(urldisplay).openStream();
-                mIcon11 = BitmapFactory.decodeStream(in);
+            if (cache.hasBitmap(urldisplay)){
+                mIcon11 = cache.getBitmap(urldisplay);
+                Log.i(TAG, "Image in cache" + photoChange.getTitle());
+            }else{
+                try {
+                    InputStream in = new java.net.URL(urldisplay).openStream();
+                    mIcon11 = BitmapFactory.decodeStream(in);
+//                    Log.i(TAG, "Download Image successfully " + photoChange.getTitle());
+                    cache.setBitmap(urldisplay, mIcon11);
+                } catch (Exception e) {
+                    Log.e("Error", e.getMessage());
+                    e.printStackTrace();
+                }
+            }
                 onProgressUpdate(mIcon11);
                 listBitmap.add(mIcon11);
 //                photoChange.setBitmap(mIcon11);
-                Log.i(TAG, "Download Image successfully " + photoChange.getTitle());
-            } catch (Exception e) {
-                Log.e("Error", e.getMessage());
-                e.printStackTrace();
-            }
         }
 
         return listBitmap;

@@ -10,10 +10,15 @@
 
     </item>
     <item
+        android:title="Location"
+        android:id="@+id/findLocation"
+        android:icon="@drawable/ic_location_on_black_24dp"
+        app:showAsAction="ifRoom">
+    </item>
+    <item
         android:title="Renew"
         android:icon="@drawable/ic_autorenew_black_24dp"
         android:id="@+id/renew"
-        app:showAsAction="ifRoom"
-
-        />
+        app:showAsAction="ifRoom">
+    </item>
 </menu>

@@ -16,13 +16,20 @@ public class JsonPares {
             JSONArray listPhoto = photos.getJSONArray("photo");
             for (int i = 0; i < listPhoto.length(); i++){
                 JSONObject obj = (JSONObject) listPhoto.get(i);
-                list.add(new Photo(obj.getString("id"),obj.getString("owner"),
-                        obj.getString("secret"), obj.getString("server"),
-                        obj.getLong("farm"), obj.getString("title"), obj.getLong("ispublic"),
-                        obj.getLong("isfriend"), obj.getLong("isfamily"), obj.getString("url_s"),
-                        obj.getString("height_s"), obj.getString("width_s")));
-            }
+                if (!obj.isNull("url_s")){
+                    String id = obj.getString("id");
+                    String title = obj.getString("title");
+                    long ispublic = obj.getLong("ispublic");
+                    long isfriend = obj.getLong("isfriend");
+                    long isfamily = obj.getLong("isfamily");
+                    String url_s = obj.getString("url_s");
+                    String height_s = obj.getString("height_s");
+                    String width_s = obj.getString("width_s");
+                    if (url_s != null) list.add(new Photo(id, title, ispublic, isfriend, isfamily, url_s, height_s, width_s));
+                }
+         }
         } catch (JSONException e) {
+           System.out.println(json);
             e.printStackTrace();
         }
         return list;
