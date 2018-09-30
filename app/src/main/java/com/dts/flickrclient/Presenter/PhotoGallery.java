@@ -120,7 +120,6 @@ public class PhotoGallery extends AppCompatActivity implements CallbackIf, Const
         });
     }
 
-
     private void requestLocationPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
